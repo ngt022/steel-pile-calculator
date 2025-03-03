@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算量工具</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+          }
+          
+          .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+          }
+          
+          h1 {
+            text-align: center;
+            color: #333;
+          }
+          
+          form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          }
+          
+          label {
+            font-weight: bold;
+          }
+          
+          select, input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+          }
+          
+          #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 4px;
+          }
+          
+          #result p {
+            margin: 5px 0;
+          }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>算量工具</h1>
+        <form id="calculationForm">
+            <label for="materialType">材料类型：</label>
+            <select id="materialType" name="materialType">
+                <option value="拉森桩">拉森桩</option>
+                <option value="H型钢">H型钢</option>
+                <option value="钢支撑">钢支撑</option>
+            </select>
+
+            <label for="model">型号：</label>
+            <select id="model" name="model"></select>
+
+            <label for="length">长度（米）：</label>
+            <input type="number" id="length" name="length" step="0.001" required oninput="calculateWeight()">
+
+            <label for="quantity">数量（根）：</label>
+            <input type="number" id="quantity" name="quantity" required oninput="calculateWeight()">
+
+            <div id="result">
+                <p>比重（吨/米）：<span id="weightPerMeter">0.000</span></p>
+                <p>总重量（吨）：<span id="totalWeight">0.000</span></p>
+            </div>
+        </form>
+    </div>
+    <script src="script.js"></script>
+
+    <script>
+        // 参数表数据
+        const parameters = [
+            { materialType: "拉森桩", model: "3号桩", weightPerMeter: 0.060 },
+            { materialType: "拉森桩", model: "4号桩", weightPerMeter: 0.0761 },
+            { materialType: "拉森桩", model: "6号桩", weightPerMeter: 0.106 },
+            { materialType: "H型钢", model: "H700型钢", weightPerMeter: 0.185 },
+            { materialType: "H型钢", model: "H488型钢", weightPerMeter: 0.129 },
+            { materialType: "钢支撑", model: "609钢支撑", weightPerMeter: 0.350 },
+            { materialType: "钢支撑", model: "H400型钢支撑", weightPerMeter: 0.210 },
+          ];
+          
+          // 初始化型号下拉框
+          function initializeModelDropdown() {
+            const materialTypeSelect = document.getElementById("materialType");
+            const modelSelect = document.getElementById("model");
+          
+            materialTypeSelect.addEventListener("change", function () {
+              const selectedMaterialType = materialTypeSelect.value;
+              const models = parameters
+                .filter((item) => item.materialType === selectedMaterialType)
+                .map((item) => item.model);
+          
+              modelSelect.innerHTML = models.map((model) => `<option value="${model}">${model}</option>`).join("");
+            });
+          
+            // 默认加载第一个材料类型的型号
+            materialTypeSelect.dispatchEvent(new Event("change"));
+          }
+          
+          // 实时计算重量
+          function calculateWeight() {
+            const materialType = document.getElementById("materialType").value;
+            const model = document.getElementById("model").value;
+            const length = parseFloat(document.getElementById("length").value) || 0;
+            const quantity = parseInt(document.getElementById("quantity").value) || 0;
+          
+            const selectedParameter = parameters.find(
+              (item) => item.materialType === materialType && item.model === model
+            );
+          
+            if (selectedParameter) {
+              const weightPerMeter = selectedParameter.weightPerMeter;
+              const totalWeight = weightPerMeter * length * quantity;
+          
+              document.getElementById("weightPerMeter").textContent = weightPerMeter.toFixed(3);
+              document.getElementById("totalWeight").textContent = totalWeight.toFixed(3);
+            } else {
+              document.getElementById("weightPerMeter").textContent = "0.000";
+              document.getElementById("totalWeight").textContent = "0.000";
+            }
+          }
+          
+          // 初始化
+          initializeModelDropdown();
+    </script>
+</body>
+
+</html>
